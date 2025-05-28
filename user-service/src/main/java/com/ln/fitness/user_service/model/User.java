@@ -1,14 +1,13 @@
 package com.ln.fitness.user_service.model;
 
 import jakarta.persistence.*;
-<<<<<<< HEAD
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-=======
 import lombok.Data;
->>>>>>> 785540e5e5af594c1197227125a04e27d98866a8
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -17,12 +16,11 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "users")
 @Data
-<<<<<<< HEAD
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-=======
->>>>>>> 785540e5e5af594c1197227125a04e27d98866a8
+
 public class User {
 
     @Id
