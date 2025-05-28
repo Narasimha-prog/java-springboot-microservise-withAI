@@ -25,5 +25,13 @@ public class UserControlAdvice {
         errors.put("message", ex.getMessage());
         return ResponseEntity.badRequest().body(errors);
     }
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> allExceptions(Exception ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<String> UserNotFoundExceptions(UserNotFoundException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
 
 }
