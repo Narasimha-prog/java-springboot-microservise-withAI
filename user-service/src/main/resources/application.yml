@@ -1,0 +1,13 @@
+spring:
+  application:
+       name: user-service
+  datasource:
+    url: jdbc:postgresql://user-service-db:5432/db
+    username: admin_user
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+server:
+  port: 4000
