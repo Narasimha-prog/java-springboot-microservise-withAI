@@ -33,6 +33,7 @@ public class User {
     private String firstName;
     private String lastName;
 @Enumerated(EnumType.STRING)
+@Builder.Default
     private UserRole role=UserRole.USER;
 @CreationTimestamp
     private LocalDateTime createdAt;
