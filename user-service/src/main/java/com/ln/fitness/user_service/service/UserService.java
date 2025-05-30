@@ -7,10 +7,12 @@ import com.ln.fitness.user_service.exception.UserNotFoundException;
 import com.ln.fitness.user_service.model.User;
 import com.ln.fitness.user_service.repository.IUserRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserService implements IUserService{
 
     private IUserRepository userRepository;
@@ -54,5 +56,12 @@ public class UserService implements IUserService{
                 .updatedAt(user.getUpdatedAt())
                 .build();
 
+    }
+
+    @Override
+    public Boolean existByUserId(String userId) {
+        log.info("Calling User Validation API for userId {}",userId);
+
+        return userRepository.existsById(userId);
     }
 }

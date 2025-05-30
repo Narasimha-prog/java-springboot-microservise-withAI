@@ -23,4 +23,9 @@ private IUserService userService;
     public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody RegisterRequest register){
         return ResponseEntity.ok(userService.register(register));
     }
+
+    @GetMapping("/{userId}/validate")
+    public ResponseEntity<Boolean> validateUser(@PathVariable String userId){
+        return ResponseEntity.ok(userService.existByUserId(userId));
+    }
 }

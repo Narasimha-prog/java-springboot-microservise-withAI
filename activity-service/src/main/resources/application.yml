@@ -12,4 +12,9 @@ eureka:
    service-url:
      defaultZone: http://eureka-server:8761/eureka/
 
-
+ instance:
+   preferIpAddress: true
+   ip-address: host.docker.internal
+logging:
+  level:
+    root: INFO

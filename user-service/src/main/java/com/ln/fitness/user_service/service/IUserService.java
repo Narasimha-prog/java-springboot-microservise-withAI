@@ -8,4 +8,6 @@ public interface IUserService {
     UserResponse register(RegisterRequest request);
 
     UserResponse getUserProfile(String userId);
+
+    Boolean existByUserId(String userId);
 }
