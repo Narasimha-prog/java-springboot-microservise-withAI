@@ -1,0 +1,37 @@
+spring:
+  application:
+        name: ai-service
+
+  data:
+    mongodb:
+      uri: mongodb://mongo-db:27017/fitnessactivity
+      database: fitnessactivity
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: admin_user
+    password: password
+    connection-timeout: 20000
+
+server:
+  port: 4002
+eureka:
+    client:
+      service-url:
+        defaultZone: http://eureka-server:8761/eureka/
+    instance:
+      preferIpAddress: true
+      ip-address: host.docker.internal
+
+logging:
+    level:
+      root: INFO
+rabbitmq:
+  exchange:
+    name: fitness.exchange
+  queue:
+    name: activity.queue
+  routing:
+    key: activity.tracking
+
