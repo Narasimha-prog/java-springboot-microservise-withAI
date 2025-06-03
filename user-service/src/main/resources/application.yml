@@ -2,9 +2,9 @@ spring:
   application:
        name: user-service
   datasource:
-    url: jdbc:postgresql://user-service-db:5432/db
-    username: admin_user
-    password: password
+    url: jdbc:postgresql://localhost:5432/db
+    username: postgres
+    password: admin
 
   jpa:
     hibernate:
@@ -14,10 +14,10 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
-  instance:
-    preferIpAddress: true
-    ip-address: host.docker.internal
+      defaultZone: http://localhost:8761/eureka/
+  #instance:
+    #preferIpAddress: true
+    #ip-address: host.docker.internal
 
 logging:
   level:
