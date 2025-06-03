@@ -7,13 +7,6 @@ spring:
       uri: mongodb://mongo-db:27017/fitnessactivity
       database: fitnessactivity
 
-  rabbitmq:
-    host: rabbitmq
-    port: 5672
-    username: admin_user
-    password: password
-    connection-timeout: 20000
-
 server:
   port: 4002
 eureka:
@@ -27,11 +20,7 @@ eureka:
 logging:
     level:
       root: INFO
-rabbitmq:
-  exchange:
-    name: fitness.exchange
-  queue:
-    name: activity.queue
-  routing:
-    key: activity.tracking
-
+gemini:
+  api:
+    url: ${GEMINI_API_URL}
+    key: ${GEMINI_API_KEY}
