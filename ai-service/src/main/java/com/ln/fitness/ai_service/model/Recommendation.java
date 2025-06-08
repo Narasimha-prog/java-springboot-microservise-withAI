@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -24,6 +23,8 @@ public class Recommendation {
     private String userId;
     private String activityType;
     private String recommendation;
+    private List<String> suggestions;
+    private List<String> safety;
    private List<String> improvements;
    @CreatedDate
    private LocalDateTime createdAt;
