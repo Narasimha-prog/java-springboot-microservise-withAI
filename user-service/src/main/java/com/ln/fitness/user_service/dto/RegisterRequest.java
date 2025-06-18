@@ -7,6 +7,7 @@ import lombok.Data;
 
 @Data
 public class RegisterRequest {
+    private String keyCloakId;
     @NotBlank(message = "Email is Required")
     @Email(message = "Invalid Email")
     private String email;

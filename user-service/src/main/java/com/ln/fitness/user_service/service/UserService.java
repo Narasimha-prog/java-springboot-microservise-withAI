@@ -21,7 +21,18 @@ public class UserService implements IUserService{
     @Override
     public UserResponse register(RegisterRequest request) {
         if(userRepository.existsByEmail(request.getEmail())){
-             throw new EmailAlreadyExistedException("Email is Already Existed "+request.getEmail());
+             //throw new EmailAlreadyExistedException("Email is Already Existed "+request.getEmail());
+            User existingUser=  userRepository.findByEmail(request.getEmail());
+         return   UserResponse.builder()
+                    .id(existingUser.getId())
+                    .keyCloakId(existingUser.getKeyCloakId())
+                    .email(existingUser.getEmail())
+                    .firstName(existingUser.getFirstName())
+                    .lastName(existingUser.getLastName())
+                    .password(existingUser.getPassword())
+                    .createdAt(existingUser.getCreatedAt())
+                    .updatedAt(existingUser.getUpdatedAt())
+                    .build();
         }
         User user=User.builder()
                 .email(request.getEmail())
@@ -33,6 +44,7 @@ public class UserService implements IUserService{
 
      return UserResponse.builder()
              .id(savedUser.getId())
+             .keyCloakId(savedUser.getKeyCloakId())
              .email(savedUser.getEmail())
              .firstName(savedUser.getFirstName())
              .lastName(savedUser.getLastName())
@@ -59,9 +71,9 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public Boolean existByUserId(String userId) {
+    public Boolean existByKeyCloakId(String userId) {
         log.info("Calling User Validation API for userId {}",userId);
 
-        return userRepository.existsById(userId);
+        return userRepository.existsByKeyCloakId(userId);
     }
 }

@@ -9,5 +9,5 @@ public interface IUserService {
 
     UserResponse getUserProfile(String userId);
 
-    Boolean existByUserId(String userId);
+    Boolean existByKeyCloakId(String userId);
 }
