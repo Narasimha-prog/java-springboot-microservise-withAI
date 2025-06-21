@@ -39,7 +39,9 @@ public class UserService implements IUserService{
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .password(request.getPassword())
+                .keyCloakId(request.getKeyCloakId())
                 .build();
+        log.info("User is saved with :{}",user.toString());
      User savedUser=  userRepository.save(user);
 
      return UserResponse.builder()
@@ -73,7 +75,6 @@ public class UserService implements IUserService{
     @Override
     public Boolean existByKeyCloakId(String userId) {
         log.info("Calling User Validation API for userId {}",userId);
-
         return userRepository.existsByKeyCloakId(userId);
     }
 }

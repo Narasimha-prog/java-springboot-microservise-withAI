@@ -25,13 +25,19 @@ public class KeyCloakUserSynFilter  implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String userId = exchange.getRequest().getHeaders().getFirst("X-User-ID");
         String token = exchange.getRequest().getHeaders().getFirst("Authorization");
+        RegisterRequest registerRequest = getUserDetails(token);
+        if(userId==null){
+            userId=registerRequest.getKeyCloakId();
+        }
         if (userId != null && token != null) {
+            String finalUserId = userId;
             return userService.validateUser(userId).flatMap(
                     exist -> {
-                        if (!exist) {
-                            //register user
-
-                            RegisterRequest registerRequest = getUserDetails(token);
+                        if(!exist) {
+                            if(registerRequest != null){
+                                return userService.registerUser(registerRequest)
+                                .then(Mono.empty());
+                            }
                             return Mono.empty();
                         } else {
                             log.info("User is already existed,SkypingSyn");
@@ -42,13 +48,13 @@ public class KeyCloakUserSynFilter  implements WebFilter {
                     }).then(Mono.defer(() ->
                     {
                         ServerHttpRequest mutedRequest = exchange.getRequest().mutate().
-                                header("X-User-ID")
+                                header("X-User-ID", finalUserId)
                                 .build();
                         return chain.filter(exchange.mutate().request(mutedRequest).build());
                     }
             ));
         }
-        return null;
+        return chain.filter(exchange);
     }
 
     private RegisterRequest getUserDetails(String token)
@@ -60,11 +66,19 @@ public class KeyCloakUserSynFilter  implements WebFilter {
             JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
 
 
+            return RegisterRequest.builder()
+                    .email(claimsSet.getStringClaim("email"))
+                    .keyCloakId(claimsSet.getStringClaim("sub"))
+                    .password("DummyPassword")
+                    .firstName(claimsSet.getStringClaim("given_name"))
+                    .lastName(claimsSet.getStringClaim("family_name"))
+                    .build();
         } catch (Exception e)
         {
             throw new RuntimeException(e);
-            return null;
+
         }
+
 
     }
 

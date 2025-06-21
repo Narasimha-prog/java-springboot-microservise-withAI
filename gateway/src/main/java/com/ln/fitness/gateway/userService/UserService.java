@@ -36,4 +36,23 @@ public class UserService {
 
 
     }
+
+    public Mono<UserResponse> registerUser(RegisterRequest registerRequest) {
+        log.info("Calling User RegisterUser API for userId {}",registerRequest.toString());
+        return userServiceWebClient.post()
+                .uri("/api/users/register")
+                .bodyValue(registerRequest)
+                .retrieve()
+                .bodyToMono(UserResponse.class)
+                .onErrorResume(WebClientResponseException.class,e ->
+                {
+                    if (e.getStatusCode() == HttpStatus.BAD_REQUEST)
+                        return Mono.error(new RuntimeException("Bad Request: " + e.getMessage()));
+                    else if (e.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR)
+                        return Mono.error(new RuntimeException("Internal Server Error: " + e.getMessage()));
+                    return Mono.error(new RuntimeException("Unexpected error: " + e.getMessage()));
+                });
+
+
+    }
 }
