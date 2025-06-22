@@ -21,18 +21,18 @@ public class UserService implements IUserService{
     @Override
     public UserResponse register(RegisterRequest request) {
         if(userRepository.existsByEmail(request.getEmail())){
-             //throw new EmailAlreadyExistedException("Email is Already Existed "+request.getEmail());
-            User existingUser=  userRepository.findByEmail(request.getEmail());
-         return   UserResponse.builder()
-                    .id(existingUser.getId())
-                    .keyCloakId(existingUser.getKeyCloakId())
-                    .email(existingUser.getEmail())
-                    .firstName(existingUser.getFirstName())
-                    .lastName(existingUser.getLastName())
-                    .password(existingUser.getPassword())
-                    .createdAt(existingUser.getCreatedAt())
-                    .updatedAt(existingUser.getUpdatedAt())
-                    .build();
+             throw new EmailAlreadyExistedException("Email is Already Existed "+request.getEmail());
+//            User existingUser=  userRepository.findByEmail(request.getEmail());
+//         return   UserResponse.builder()
+//                    .id(existingUser.getId())
+//                    .keyCloakId(existingUser.getKeyCloakId())
+//                    .email(existingUser.getEmail())
+//                    .firstName(existingUser.getFirstName())
+//                    .lastName(existingUser.getLastName())
+//                    .password(existingUser.getPassword())
+//                    .createdAt(existingUser.getCreatedAt())
+//                    .updatedAt(existingUser.getUpdatedAt())
+//                    .build();
         }
         User user=User.builder()
                 .email(request.getEmail())
@@ -59,6 +59,7 @@ public class UserService implements IUserService{
 
     @Override
     public UserResponse getUserProfile(String userId){
+        log.info("Calling GetUser details API for userId {}",userId);
       User user =  userRepository.findById(userId).orElseThrow(()-> new UserNotFoundException("User is not found with this ID: "+userId) );
         return UserResponse.builder()
                 .id(user.getId())
@@ -67,6 +68,7 @@ public class UserService implements IUserService{
                 .lastName(user.getLastName())
                 .password(user.getPassword())
                 .createdAt(user.getCreatedAt())
+                .keyCloakId(user.getKeyCloakId())
                 .updatedAt(user.getUpdatedAt())
                 .build();
 
