@@ -1,5 +1,5 @@
 
-import { Box, Button } from "@mui/material"
+import { Box, Button, Typography } from "@mui/material"
 import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "react-oauth2-code-pkce"
 import { useDispatch } from "react-redux";
@@ -13,7 +13,7 @@ function App() {
   const ActivitiesPage=()=>{
     return(
      <Box component="section" sx={{ p: 2, border: '1px dashed grey' }}>
-     <ActivityForm onActivitiesAdded={()=>window.location.reload()}/>
+     <ActivityForm onActivityAdded={()=>window.location.reload()}/>
       <ActivityList/>
     </Box>)
   }
@@ -30,28 +30,50 @@ function App() {
   },[token,tokenData,dispatch])
   
   return (
-  
-    <Router>
+   <Router>
       {!token ? (
-      <Button variant="contained" color="#dc004e" onClick={()=>{
-        logIn();
-      }}>Login</Button>
-    ) : (
-        // <div>
-        //   <pre>{JSON.stringify(tokenData,null,2)}</pre>
-        //   <pre>{JSON.stringify(token,null,2)}</pre>
-        
-        // </div>
+      <Box
+      sx={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+      }}
+    >
+      <Typography variant="h4" gutterBottom>
+        Welcome to the Fitness Tracker App
+      </Typography>
+      <Typography variant="subtitle1" sx={{ mb: 3 }}>
+        Please login to access your activities
+      </Typography>
+      <Button variant="contained" color="primary" size="large" onClick={() => {
+                logIn();
+              }}>
+        LOGIN
+      </Button>
+    </Box>
+            ) : (
+              // <div>
+              //   <pre>{JSON.stringify(tokenData, null, 2)}</pre>
+              //   <pre>{JSON.stringify(token, null, 2)}</pre>
+              // </div>
 
-         <Box component="section" sx={{ p: 2, border: '1px dashed grey' }}>
-          <Routes>
-            <Route  path="/activities" element={<ActivitiesPage/>}/>
-              <Route  path="/activities/:id" element={<ActivityDetails/>}/>
-              <Route path="/" element={token ? <Navigate to="/activities" /> : <div>WElCOME PLEASE LOGIN ......</div>}/>
-          </Routes>
-       </Box>
-    )}
+             
 
+              <Box sx={{ p: 2, border: '1px dashed grey' }}>
+                 <Button variant="contained" color="secondary" onClick={() => logOut()}>
+                  Logout
+                </Button>
+              <Routes>
+                <Route path="/activities" element={<ActivitiesPage />}/>
+                <Route path="/activities/:id" element={<ActivityDetails />}/>
+
+                <Route path="/" element={token ? <Navigate to="/activities" replace/> : <div>Welcome! Please Login.</div>} />
+              </Routes>
+            </Box>
+            )}
     </Router>
   )
 }
