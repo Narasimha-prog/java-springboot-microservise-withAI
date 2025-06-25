@@ -1,6 +1,7 @@
 package com.ln.fitness.gateway;
 
 import com.ln.fitness.gateway.userService.RegisterRequest;
+import com.ln.fitness.gateway.userService.UserRole;
 import com.ln.fitness.gateway.userService.UserService;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -12,6 +13,9 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -65,13 +69,22 @@ public class KeyCloakUserSynFilter  implements WebFilter {
             SignedJWT signedJWT = SignedJWT.parse(tokenWithoutBearer);
             JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
 
+            // Extract client roles
+            Map<String, Object> resourceAccess = (Map<String, Object>) claimsSet.getClaim("resource_access");
+            Map<String, Object> clientAccess = (Map<String, Object>) resourceAccess.get("oath2-clent"); // Use your actual client ID
 
+            List<String> roles = (List<String>) clientAccess.get("roles");
+            UserRole userRole = roles.contains("client_admin")
+                    ? UserRole.ADMIN
+                    : UserRole.USER;
+            boolean isAdmin = roles.contains("client_admin");
             return RegisterRequest.builder()
                     .email(claimsSet.getStringClaim("email"))
                     .keyCloakId(claimsSet.getStringClaim("sub"))
                     .password("DummyPassword")
                     .firstName(claimsSet.getStringClaim("given_name"))
                     .lastName(claimsSet.getStringClaim("family_name"))
+                    .role(userRole)
                     .build();
         } catch (Exception e)
         {

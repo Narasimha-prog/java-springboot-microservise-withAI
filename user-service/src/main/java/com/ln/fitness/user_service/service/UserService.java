@@ -40,6 +40,7 @@ public class UserService implements IUserService{
                 .lastName(request.getLastName())
                 .password(request.getPassword())
                 .keyCloakId(request.getKeyCloakId())
+                .role(request.getRole())
                 .build();
         log.info("User is saved with :{}",user.toString());
      User savedUser=  userRepository.save(user);

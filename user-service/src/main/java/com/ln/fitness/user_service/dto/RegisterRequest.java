@@ -1,5 +1,6 @@
 package com.ln.fitness.user_service.dto;
 
+import com.ln.fitness.user_service.model.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -16,5 +17,6 @@ public class RegisterRequest {
     private String password;
     private String firstName;
     private String lastName;
+    private UserRole role;
 
 }
