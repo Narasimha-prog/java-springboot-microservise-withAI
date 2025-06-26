@@ -12,12 +12,21 @@ spring:
           order: 1
           predicates:
             - Path=/api/users/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: userValidationService
+                fallbackUri: forward:/fallback/user-service
+
         - id: activity-service
           uri: lb://ACTIVITY-SERVICE
+          order: 1
           predicates:
             - Path=/api/activities/**
+
         - id: ai-service
           uri: lb://AI-SERVICE
+          order: 1
           predicates:
             - Path=/api/recommendations/**
 
@@ -28,6 +37,23 @@ spring:
               - Path=/api/users/actuator/**
           filters:
               - StripPrefix=2
+
+        - id: activity-service-info
+          uri: lb://ACTIVITY-SERVICE
+          order: 0
+          predicates:
+                  - Path=/api/activities/actuator/**
+          filters:
+                  - StripPrefix=2
+
+        - id: ai-service-info
+          uri: lb://AI-SERVICE
+          order: 0
+          predicates:
+            - Path=/api/recommendations/actuator/**
+          filters:
+            - StripPrefix=2
+
 server:
   port: 4004
 
@@ -40,7 +66,30 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      userValidationService:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        recordExceptions:
+          - org.springframework.web.reactive.function.client.WebClientResponseException
+          - java.io.IOException
+        ignoreExceptions:
+          - com.ln.fitness.gateway.exception.UserNotFoundException
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.web.reactive.DispatcherHandler: DEBUG
+    org.springframework.cloud.gateway.filter.factory: DEBUG
+    io.github.resilience4j: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.web.server: DEBUG
+    org.springframework.security.oauth2: DEBUG

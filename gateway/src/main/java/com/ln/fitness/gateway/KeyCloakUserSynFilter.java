@@ -63,21 +63,27 @@ public class KeyCloakUserSynFilter  implements WebFilter {
 
     private RegisterRequest getUserDetails(String token)
     {
-        try
-        {
+        try {
             String tokenWithoutBearer = token.replace("Bearer ", "").trim();
             SignedJWT signedJWT = SignedJWT.parse(tokenWithoutBearer);
             JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
 
             // Extract client roles
             Map<String, Object> resourceAccess = (Map<String, Object>) claimsSet.getClaim("resource_access");
-            Map<String, Object> clientAccess = (Map<String, Object>) resourceAccess.get("oath2-clent"); // Use your actual client ID
+            List<String> roles = null;
+            UserRole userRole = null;
+            if (resourceAccess != null && resourceAccess.containsKey("oath2-clent")) {
+                Map<String, Object> clientAccess = (Map<String, Object>) resourceAccess.get("oath2-clent"); // Use your actual client ID
+                roles = (List<String>) clientAccess.get("roles");
+                log.info("Roles found in oath2-clent: {}", roles);
+                userRole = roles.contains("client_admin")
+                        ? UserRole.ADMIN
+                        : UserRole.USER;
+            } else {
+                log.warn("Token does not contain 'oath2-clent' in resource_access. Assigning default USER role.");
+            }
 
-            List<String> roles = (List<String>) clientAccess.get("roles");
-            UserRole userRole = roles.contains("client_admin")
-                    ? UserRole.ADMIN
-                    : UserRole.USER;
-            boolean isAdmin = roles.contains("client_admin");
+
             return RegisterRequest.builder()
                     .email(claimsSet.getStringClaim("email"))
                     .keyCloakId(claimsSet.getStringClaim("sub"))

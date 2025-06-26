@@ -32,3 +32,13 @@ rabbitmq:
     key: activity.tracking
 
 
+
+# ✅ Actuator properties
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Expose all endpoints (or use "health,info" for limited exposure)
+  endpoint:
+    health:
+      show-details: always  # Shows full health details

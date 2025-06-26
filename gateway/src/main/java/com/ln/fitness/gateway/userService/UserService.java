@@ -2,6 +2,8 @@ package com.ln.fitness.gateway.userService;
 
 
 import com.ln.fitness.gateway.exception.UserNotFoundException;
+import com.ln.fitness.gateway.exception.UserServiceUnavailableException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,10 +16,13 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
+
     final private WebClient userServiceWebClient;
 
+
+@CircuitBreaker(name = "userValidationService",fallbackMethod = "fallbackValidateUser")
     public Mono<Boolean> validateUser(String userId){
-        log.info("Calling User Validation API for userId {}",userId);
+        log.info("Calling User Validation API  for Authentication Using KeyCloakId {}",userId);
             return userServiceWebClient.get()
                     .uri("/api/users/{userId}/validate",userId)
                     .retrieve()
@@ -30,13 +35,13 @@ public class UserService {
                             return Mono.error(new UserNotFoundException("Invalid Request " + userId));
                         } else {
 
-                            return Mono.error( new RuntimeException("Error while validating user: " + ex.getMessage()));
+                            return Mono.error(ex);
                         }
                     });
 
 
     }
-
+    @CircuitBreaker(name = "userValidationService",fallbackMethod = "fallbackRegisterUser")
     public Mono<UserResponse> registerUser(RegisterRequest registerRequest) {
         log.info("Calling User RegisterUser API for userId {}",registerRequest.toString());
         return userServiceWebClient.post()
@@ -44,15 +49,27 @@ public class UserService {
                 .bodyValue(registerRequest)
                 .retrieve()
                 .bodyToMono(UserResponse.class)
-                .onErrorResume(WebClientResponseException.class,e ->
-                {
-                    if (e.getStatusCode() == HttpStatus.BAD_REQUEST)
-                        return Mono.error(new RuntimeException("Bad Request: " + e.getMessage()));
-                    else if (e.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR)
-                        return Mono.error(new RuntimeException("Internal Server Error: " + e.getMessage()));
-                    return Mono.error(new RuntimeException("Unexpected error: " + e.getMessage()));
+                .onErrorResume(WebClientResponseException.class, e -> {
+                    if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                        return Mono.error(new UserNotFoundException("User Not Found " + registerRequest.getKeyCloakId()));
+                    } else if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                        return Mono.error(new UserNotFoundException("Invalid Request " + registerRequest.getKeyCloakId()));
+                    }
+                    return Mono.error(e); // Let other errors (like 503) bubble up
                 });
 
 
+
+    }
+    // Correct fallback for validateUser
+    public Mono<Boolean> fallbackValidateUser(String userId, Throwable throwable) {
+        log.error("Fallback triggered - User service unavailable for userId: {}", userId, throwable);
+        return Mono.error(new UserServiceUnavailableException("User service is currently unavailable. Please try again later.", throwable));
+    }
+
+    // Correct fallback for registerUser
+    public Mono<UserResponse> fallbackRegisterUser(RegisterRequest registerRequest, Throwable throwable) {
+        log.error("Fallback triggered - Unable to register user: {}", registerRequest.getKeyCloakId(), throwable);
+        return Mono.error(new UserServiceUnavailableException("User service is currently unavailable. Please try again later.", throwable));
     }
 }

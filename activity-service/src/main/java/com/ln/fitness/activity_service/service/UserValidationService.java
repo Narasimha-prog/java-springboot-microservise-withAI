@@ -1,6 +1,8 @@
 package com.ln.fitness.activity_service.service;
 
 import com.ln.fitness.activity_service.excption.UserNotFoundException;
+import com.ln.fitness.activity_service.excption.UserServiceUnavailableException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,8 +16,9 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 public class UserValidationService {
     final private WebClient userServiceWebClient;
 
+    @CircuitBreaker(name = "userValidationService",fallbackMethod = "fallbackValidateUser")
     public boolean validateUser(String userId){
-        log.info("Calling User Validation API for userId {}",userId);
+        log.info("Calling User Validation API for Activity Data Insertion Using KeyCloakId {}",userId);
         try {
             return userServiceWebClient.get()
                     .uri("/api/users/{userId}/validate",userId)
@@ -34,4 +37,9 @@ public class UserValidationService {
         }
 
     }
+    public boolean fallbackValidateUser(String userId, Throwable throwable) {
+        log.error("User service is unavailable. Could not validate user: {}", userId, throwable);
+        throw new UserServiceUnavailableException("User service is currently unavailable. Please try again later.", throwable);
+    }
+
 }

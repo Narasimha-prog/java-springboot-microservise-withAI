@@ -1,5 +1,7 @@
 package com.ln.fitness.gateway;
 
+import com.ln.fitness.gateway.exception.CustomAccessDeniedHandler;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,14 +28,22 @@ import java.util.*;
 @Slf4j
 @Configuration
 @EnableWebFluxSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final CustomAccessDeniedHandler accessDeniedHandler;
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/actuator/**").hasRole("client_admin")
+                        .pathMatchers("/api/users/actuator/**").hasRole("client_admin")
+                        .pathMatchers("/api/activities/actuator/**").hasRole("client_admin")
+                        .pathMatchers("/api/recommendations/actuator/**").hasRole("client_admin")
                         .anyExchange().authenticated()
+                )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .accessDeniedHandler(accessDeniedHandler)  // Register custom AccessDeniedHandler
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
