@@ -15,7 +15,7 @@ spring:
           filters:
             - name: CircuitBreaker
               args:
-                name: userValidationService
+                name: userServiceCircuitBreaker
                 fallbackUri: forward:/fallback/user-service
 
         - id: activity-service
@@ -23,12 +23,23 @@ spring:
           order: 1
           predicates:
             - Path=/api/activities/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: activityServiceCircuitBreaker
+                fallbackUri: forward:/fallback/activity-service
 
         - id: ai-service
           uri: lb://AI-SERVICE
           order: 1
           predicates:
             - Path=/api/recommendations/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: aiServiceCircuitBreaker
+                fallbackUri: forward:/fallback/ai-service
+
 
         - id: user-service_info
           uri: lb://USER-SERVICE
@@ -81,15 +92,73 @@ resilience4j:
         waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
         automaticTransitionFromOpenToHalfOpenEnabled: true
-        recordExceptions:
-          - org.springframework.web.reactive.function.client.WebClientResponseException
-          - java.io.IOException
-        ignoreExceptions:
-          - com.ln.fitness.gateway.exception.UserNotFoundException
-logging:
-  level:
-    org.springframework.cloud.gateway.filter.factory: DEBUG
-    io.github.resilience4j: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.security.web.server: DEBUG
-    org.springframework.security.oauth2: DEBUG
+
+      userValidationServiceRegister:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 40
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+      userServiceCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+
+      activityServiceCircuitBreaker:
+          registerHealthIndicator: true
+          slidingWindowType: COUNT_BASED
+          slidingWindowSize: 5
+          minimumNumberOfCalls: 5
+          failureRateThreshold: 50
+          waitDurationInOpenState: 10s
+          permittedNumberOfCallsInHalfOpenState: 3
+          automaticTransitionFromOpenToHalfOpenEnabled: true
+
+      aiServiceCircuitBreaker:
+          registerHealthIndicator: true
+          slidingWindowType: COUNT_BASED
+          slidingWindowSize: 5
+          minimumNumberOfCalls: 5
+          failureRateThreshold: 50
+          waitDurationInOpenState: 10s
+          permittedNumberOfCallsInHalfOpenState: 3
+          automaticTransitionFromOpenToHalfOpenEnabled: true
+
+  retry:
+    instances:
+      userValidationRetry:
+        max-attempts: 5
+        wait-duration: 2s
+        retry-exceptions:
+          - java.lang.IllegalStateException
+          - org.springframework.web.reactive.function.client.WebClientRequestException
+          - org.springframework.web.reactive.function.client.WebClientResponseException$ServiceUnavailable
+
+      userRegisterRetry:
+        max-attempts: 5
+        wait-duration: 2s
+        retry-exceptions:
+          - java.lang.IllegalStateException
+          - org.springframework.web.reactive.function.client.WebClientRequestException
+          - org.springframework.web.reactive.function.client.WebClientResponseException$ServiceUnavailable
+
+# ✅ Actuator properties
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,circuitbreakers,info
+  endpoint:
+    health:
+      show-details: always
+    circuitbreakers:
+      enabled: true
+

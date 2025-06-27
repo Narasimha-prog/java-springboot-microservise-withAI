@@ -37,6 +37,7 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
+                        .pathMatchers("/actuator/**").permitAll()
                         .pathMatchers("/api/users/actuator/**").hasRole("client_admin")
                         .pathMatchers("/api/activities/actuator/**").hasRole("client_admin")
                         .pathMatchers("/api/recommendations/actuator/**").hasRole("client_admin")

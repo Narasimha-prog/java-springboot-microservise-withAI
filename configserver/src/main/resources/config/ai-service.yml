@@ -33,12 +33,22 @@ rabbitmq:
 
 
 
-# ✅ Actuator properties
+
+#  Actuator properties
 management:
   endpoints:
     web:
       exposure:
-        include: "*"  # Expose all endpoints (or use "health,info" for limited exposure)
+        include: circuitbreakers,shutdown, refresh, health, info
   endpoint:
+    shutdown:
+      enabled: true
     health:
-      show-details: always  # Shows full health details
+      show-details: always
+    circuitbreakers:
+      enabled: true
+    refresh:
+      enabled: true
+
+    info:
+      enabled: true
