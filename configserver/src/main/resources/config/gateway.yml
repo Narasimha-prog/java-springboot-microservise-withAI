@@ -132,23 +132,23 @@ resilience4j:
           permittedNumberOfCallsInHalfOpenState: 3
           automaticTransitionFromOpenToHalfOpenEnabled: true
 
-  retry:
-    instances:
-      userValidationRetry:
-        max-attempts: 5
-        wait-duration: 2s
-        retry-exceptions:
-          - java.lang.IllegalStateException
-          - org.springframework.web.reactive.function.client.WebClientRequestException
-          - org.springframework.web.reactive.function.client.WebClientResponseException$ServiceUnavailable
-
-      userRegisterRetry:
-        max-attempts: 5
-        wait-duration: 2s
-        retry-exceptions:
-          - java.lang.IllegalStateException
-          - org.springframework.web.reactive.function.client.WebClientRequestException
-          - org.springframework.web.reactive.function.client.WebClientResponseException$ServiceUnavailable
+#  retry:
+#    instances:
+#      userValidationRetry:
+#        max-attempts: 5
+#        wait-duration: 2s
+#        retry-exceptions:
+#          - java.lang.IllegalStateException
+#          - org.springframework.web.reactive.function.client.WebClientRequestException
+#          - org.springframework.web.reactive.function.client.WebClientResponseException$ServiceUnavailable
+#
+#      userRegisterRetry:
+#        max-attempts: 5
+#        wait-duration: 2s
+#        retry-exceptions:
+#          - java.lang.IllegalStateException
+#          - org.springframework.web.reactive.function.client.WebClientRequestException
+#          - org.springframework.web.reactive.function.client.WebClientResponseException$ServiceUnavailable
 
 # ✅ Actuator properties
 management:

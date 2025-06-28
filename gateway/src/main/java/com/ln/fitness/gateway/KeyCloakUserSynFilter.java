@@ -48,8 +48,12 @@ public class KeyCloakUserSynFilter  implements WebFilter {
         }
         if (userId != null && token != null) {
             String finalUserId = userId;
+
             return userService.validateUser(userId).map(response->response.isSuccess()) .flatMap(
+
                     exist -> {
+
+                        log.info("Validation result for user [{}]: {}", finalUserId, exist);
                         if (!exist && registerRequest != null) {
                             log.info("User not found, attempting registration.");
                             return userService.registerUser(registerRequest).thenReturn(true);
@@ -84,7 +88,7 @@ public class KeyCloakUserSynFilter  implements WebFilter {
             // Extract client roles
             Map<String, Object> resourceAccess = (Map<String, Object>) claimsSet.getClaim("resource_access");
             List<String> roles = null;
-            UserRole userRole = null;
+            UserRole userRole = UserRole.USER;
             if (resourceAccess != null && resourceAccess.containsKey("oath2-clent")) {
                 Map<String, Object> clientAccess = (Map<String, Object>) resourceAccess.get("oath2-clent"); // Use your actual client ID
                 roles = (List<String>) clientAccess.get("roles");

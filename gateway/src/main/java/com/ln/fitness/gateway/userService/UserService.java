@@ -23,14 +23,23 @@ public class UserService {
 
 
 @CircuitBreaker(name = "userValidationService",fallbackMethod = "fallbackValidateUser")
-@Retry(name = "userValidationRetry")
+//@Retry(name = "userValidationRetry")
     public Mono<UserErrorResponse> validateUser(String userId){
         log.info("Calling User Validation API  for Authentication Using KeyCloakId {}",userId);
             return userServiceWebClient.get()
                     .uri("/api/users/{userId}/validate",userId)
                     .retrieve()
-                    .bodyToMono(Boolean.class)
-                    .map(result -> new UserErrorResponse(true, "User is valid", userId))
+                    .bodyToMono(String.class) // temporarily read raw response as string
+                    .doOnNext(body -> log.info("Raw response from user validation API: {}", body))
+                    .flatMap(raw -> {
+                        try {
+                            Boolean result = Boolean.valueOf(raw); // try to parse manually
+                            return Mono.just(new UserErrorResponse(result, "User is valid", userId));
+                        } catch (Exception e) {
+                            log.error("Failed to parse boolean from response: {}", raw, e);
+                            return Mono.error(new IllegalStateException("Invalid response format from user-service: " + raw));
+                        }
+                    })
                     .onErrorResume(throwable ->
                     {
                         if (throwable instanceof IllegalStateException) {
@@ -53,7 +62,7 @@ public class UserService {
 
     }
     @CircuitBreaker(name = "userValidationServiceRegister",fallbackMethod = "fallbackRegisterUser")
-    @Retry(name = "userRegisterRetry")
+//    @Retry(name = "userRegisterRetry")
     public Mono<UserResponse> registerUser(RegisterRequest registerRequest) {
         log.info("Calling User RegisterUser API for userId {}",registerRequest.toString());
         return userServiceWebClient.post()

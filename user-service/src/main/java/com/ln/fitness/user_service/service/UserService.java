@@ -78,6 +78,7 @@ public class UserService implements IUserService{
     @Override
     public Boolean existByKeyCloakId(String userId) {
         log.info("Calling User Validation API for userId {}",userId);
+
         return userRepository.existsByKeyCloakId(userId);
     }
 }
