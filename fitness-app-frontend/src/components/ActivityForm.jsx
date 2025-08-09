@@ -1,4 +1,4 @@
-import { Box, Button, duration, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material'
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 import React, { useState } from 'react'
 import { addActivity } from '../servises/api'
 
@@ -6,11 +6,13 @@ import { addActivity } from '../servises/api'
 
 const ActivityForm = ({onActivityAdded}) => {
     const[activity,setActivity]=useState({
-        type: "RUNNING", duration: '', caloriesBurned: '',additionalMetrics: {}
+        type: "RUNNING", duration: '', caloriesBurned: '',additionalMetrics: ''
     })
 
     const handleSubmit= async (e)=>{
+         
           e.preventDefault();
+        
     try {
        await addActivity(activity);
         onActivityAdded();
@@ -37,7 +39,8 @@ const ActivityForm = ({onActivityAdded}) => {
                    type='number'
                    sx={{mb:2}}
                    value={activity.duration}
-                   onChange={(e)=>setActivity({...activity, duration: e.target.value})}
+                   
+                   onChange={ (e)=>setActivity({...activity, duration: e.target.value})}
       />
          <TextField
                   fullWidth
@@ -46,6 +49,14 @@ const ActivityForm = ({onActivityAdded}) => {
                    sx={{mb:2}}
                    value={activity.caloriesBurned}
                    onChange={(e)=>setActivity({...activity, caloriesBurned: e.target.value})}
+      />
+          <TextField
+                  fullWidth
+                   label="Addtional Details.."
+                   type='text'
+                   sx={{mb:2}}
+                   value={activity.additionalMetrics}
+                   onChange={(e)=>setActivity({...activity, additionalMetrics: e.target.value})}
       />
       
       <Button type='submit' variant='contained' >Add Activity</Button>

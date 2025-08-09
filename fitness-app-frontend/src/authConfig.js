@@ -1,8 +1,8 @@
 export const authConfig = {
-  clientId: 'oath2-clent',
-  authorizationEndpoint: 'http://localhost:8180/realms/fitness-oath2/protocol/openid-connect/auth',
-  tokenEndpoint: 'http://localhost:8180/realms/fitness-oath2/protocol/openid-connect/token',
-  logoutEndpoint: 'http://localhost:8180/realms/fitness-oath2/protocol/openid-connect/logout',
+  clientId: 'fitness',
+  authorizationEndpoint: 'http://localhost:8180/realms/fitness/protocol/openid-connect/auth',
+  tokenEndpoint: 'http://localhost:8180/realms/fitness/protocol/openid-connect/token',
+  logoutEndpoint: 'http://localhost:8180/realms/fitness/protocol/openid-connect/logout',
   redirectUri: 'http://localhost:8989',
   scope: 'openid profile email offline_access',
   onRefreshTokenExpire: (event) => event.logIn(),

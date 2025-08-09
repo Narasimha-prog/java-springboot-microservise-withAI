@@ -55,12 +55,7 @@ function App() {
       </Button>
     </Box>
             ) : (
-              // <div>
-              //   <pre>{JSON.stringify(tokenData, null, 2)}</pre>
-              //   <pre>{JSON.stringify(token, null, 2)}</pre>
-              // </div>
-
-             
+              
 
               <Box sx={{ p: 2, border: '1px dashed grey' }}>
                  <Button variant="contained" color="secondary" onClick={() => logOut()}>
@@ -69,7 +64,6 @@ function App() {
               <Routes>
                 <Route path="/activities" element={<ActivitiesPage />}/>
                 <Route path="/activities/:id" element={<ActivityDetails />}/>
-
                 <Route path="/" element={token ? <Navigate to="/activities" replace/> : <div>Welcome! Please Login.</div>} />
               </Routes>
             </Box>
