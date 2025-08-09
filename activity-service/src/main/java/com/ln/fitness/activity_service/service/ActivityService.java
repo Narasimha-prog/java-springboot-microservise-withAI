@@ -31,7 +31,7 @@ private  String exchange;
 private  String routingKey;
 
     @Override
-    public ActivityResponse trackActivity(ActivityRequest request) {
+    public ActivityResponse saveActivity(ActivityRequest request) {
 
 
         boolean validateUser= userValidationService.validateUser(request.getUserId());
@@ -48,7 +48,6 @@ private  String routingKey;
                 .build();
 
         Activity savedActivity=repository.save(activity);
-//public to rabbit mq for ai processing
         try{
             rabbitTemplate.convertAndSend(exchange,routingKey,activity);
         } catch (Exception e) {
@@ -91,5 +90,10 @@ private  String routingKey;
                 .map(this::mapEntityToActivityResponse)
                 .orElseThrow(()->new ActivityNotFoundExcpetion("Activity Not Found For this Id :"+activityId));
 
+    }
+
+    @Override
+    public void deleteActivity(String activityId) {
+       repository.deleteById(activityId);
     }
 }

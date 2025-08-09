@@ -7,9 +7,13 @@ import com.ln.fitness.activity_service.model.Activity;
 import java.util.List;
 
 public interface IActivityService {
-    ActivityResponse trackActivity(ActivityRequest request);
+    ActivityResponse saveActivity(ActivityRequest request);
+
      ActivityResponse mapEntityToActivityResponse(Activity entity);
 
     List<ActivityResponse> getUserActivity(String userId);
+
     ActivityResponse getActivity(String activityId);
+
+    void deleteActivity(String activityId);
 }

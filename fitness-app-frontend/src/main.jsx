@@ -11,7 +11,7 @@ import { authConfig } from './authConfig'
 // As of React 18
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
-  <AuthProvider authConfig={authConfig} loadingComponent={<div>Loading.....</div>}>
+  <AuthProvider authConfig={authConfig} autoLogin={false} loadingComponent={<div>Loading.....</div>}>
   <Provider store={store}>
     <App />
   </Provider>

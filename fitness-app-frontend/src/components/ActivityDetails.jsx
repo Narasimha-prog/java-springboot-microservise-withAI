@@ -7,6 +7,7 @@ const ActivityDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate(); // Initialize useNavigate hook
   const [activity, setActivity] = useState(null);
+  const[recommendation, setRecommendation] = useState({}); // Initialize recommendation state
   // recommendation is part of activity object, no need for separate state
   const [openConfirm, setOpenConfirm] = useState(false); // State for confirmation dialog
 
@@ -18,16 +19,18 @@ const ActivityDetails = () => {
         // and getActivityDetails provides the recommendation part.
         // It's usually better to have one endpoint return all details if possible.
         const response1 = await getActivityDetail(id);
-        const activityData = response1.data;
+         setActivity(response1.data);
+        console.log("Activity Data:", response1.data);
 
         // Fetch recommendation separately if not part of activityData initially
         // Otherwise, if response1.data already contains recommendation, this call might be redundant
         const responseDetails = await getActivityDetails(id);
+        console.log("Recommendation Data:", responseDetails.data);
         if (responseDetails.data && responseDetails.data.recommendation) {
-            activityData.recommendation = responseDetails.data.recommendation;
+           setRecommendation(responseDetails.data)
         }
 
-        setActivity(activityData);
+        
 
       } catch (error) {
         console.error("Error fetching activity details:", error);
@@ -62,9 +65,6 @@ const ActivityDetails = () => {
   if (!activity) {
     return <Typography>Loading....</Typography>;
   }
-
-  // Ensure recommendation structure is consistent for rendering
-  const recommendation = activity.recommendation || {}; // Default to empty object if null/undefined
 
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', p: 2 }}>

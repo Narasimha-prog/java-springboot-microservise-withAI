@@ -1,68 +1,150 @@
-import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material'
-import React, { useState } from 'react'
-import { addActivity } from '../servises/api'
+import React, { useState } from 'react';
+import { Box, Button, Container, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { addActivity } from '../servises/api';
 
 
+const ActivityForm = ({ onActivityAdded }) => {
+  const [activity, setActivity] = useState({
+    type: "RUNNING",
+    duration: '',
+    caloriesBurned: '',
+    additionalMetrics: {}
+  });
 
-const ActivityForm = ({onActivityAdded}) => {
-    const[activity,setActivity]=useState({
-        type: "RUNNING", duration: '', caloriesBurned: '',additionalMetrics: ''
-    })
+  // Add a new empty key-value pair
+  const addAdditionalMetric = () => {
+    setActivity(prev => ({
+      ...prev,
+      additionalMetrics: {
+        ...prev.additionalMetrics,
+        '': ''  // empty key and value to start with
+      }
+    }));
+  };
 
-    const handleSubmit= async (e)=>{
-         
-          e.preventDefault();
-        
+  // Update key or value of additionalMetrics
+  const updateAdditionalMetric = (oldKey, newKey, newValue) => {
+    setActivity(prev => {
+      const newMetrics = { ...prev.additionalMetrics };
+
+      // Remove old key if key changed
+      if (oldKey !== newKey) {
+        delete newMetrics[oldKey];
+      }
+
+      newMetrics[newKey] = newValue;
+
+      return {
+        ...prev,
+        additionalMetrics: newMetrics
+      };
+    });
+  };
+
+  // Remove a metric key
+  const removeAdditionalMetric = (key) => {
+    setActivity(prev => {
+      const newMetrics = { ...prev.additionalMetrics };
+      delete newMetrics[key];
+      return { ...prev, additionalMetrics: newMetrics };
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-       await addActivity(activity);
-        onActivityAdded();
-        setActivity({type: "RUNNING", duration: '', caloriesBurned: ''})
+      await addActivity(activity);
+      onActivityAdded();
+      setActivity({ type: "RUNNING", duration: '', caloriesBurned: '', additionalMetrics: {} });
     } catch (error) {
-        console.error(error);
+      console.error(error);
     }
-}
-  return (
-     <Box component="form" onSubmit={handleSubmit} sx={{mb: 4}}>
-      <FormControl fullWidth sx={{mb: 2}}>
-        <InputLabel>Activity Type</InputLabel>
-        <Select value={activity.type}
-                onChange={(e)=>setActivity({...activity, type: e.target.value} )}
-        > 
-        <MenuItem value="RUNNING">RUNNING</MenuItem>    
-         <MenuItem value="WALKING">WALKING</MenuItem>    
-          <MenuItem value="CYCLING">CYCLING</MenuItem>    
-        </Select>
-      </FormControl>
-      <TextField
-                  fullWidth
-                   label="Duration in (minutes)"
-                   type='number'
-                   sx={{mb:2}}
-                   value={activity.duration}
-                   
-                   onChange={ (e)=>setActivity({...activity, duration: e.target.value})}
-      />
-         <TextField
-                  fullWidth
-                   label="Calories burn"
-                   type='number'
-                   sx={{mb:2}}
-                   value={activity.caloriesBurned}
-                   onChange={(e)=>setActivity({...activity, caloriesBurned: e.target.value})}
-      />
-          <TextField
-                  fullWidth
-                   label="Addtional Details.."
-                   type='text'
-                   sx={{mb:2}}
-                   value={activity.additionalMetrics}
-                   onChange={(e)=>setActivity({...activity, additionalMetrics: e.target.value})}
-      />
-      
-      <Button type='submit' variant='contained' >Add Activity</Button>
- 
-    </Box>
-  )
-}
+  };
 
-export default ActivityForm
+  return (
+    <Box component="form" onSubmit={handleSubmit} sx={{ mb: 4 }}>
+      
+
+<FormControl fullWidth sx={{ mb: 2 }}>
+  <InputLabel id="activity-type-label">Activity Type</InputLabel>
+  <Select
+    labelId="activity-type-label"
+    id="activity-type-select"
+    value={activity.type}
+    label="Activity Type"
+    onChange={(e) => setActivity({ ...activity, type: e.target.value })}
+  >
+    <MenuItem value="RUNNING">RUNNING</MenuItem>
+    <MenuItem value="WALKING">WALKING</MenuItem>
+    <MenuItem value="CYCLING">CYCLING</MenuItem>
+    <MenuItem value="SWIMMING">SWIMMING</MenuItem>
+    <MenuItem value="WEIGHT_TRAINING">WEIGHT_TRAINING</MenuItem>
+    <MenuItem value="YOGA">YOGA</MenuItem>
+    <MenuItem value="CARDIO">CARDIO</MenuItem>
+    <MenuItem value="STRETCHING">STRETCHING</MenuItem>
+    <MenuItem value="OTHER">OTHER</MenuItem>
+  </Select>
+</FormControl>
+
+
+      <TextField
+        fullWidth
+        label="Duration in (minutes)"
+        type='number'
+        sx={{ mb: 2 }}
+        value={activity.duration}
+        onChange={(e) => setActivity({ ...activity, duration: e.target.value })}
+      />
+
+      <TextField
+        fullWidth
+        label="Calories burn"
+        type='number'
+        sx={{ mb: 2 }}
+        value={activity.caloriesBurned}
+        onChange={(e) => setActivity({ ...activity, caloriesBurned: e.target.value })}
+      />
+
+      {/* Render additionalMetrics as dynamic key-value pairs */}
+      {Object.entries(activity.additionalMetrics).map(([key, value], index) => (
+        <Box key={index} sx={{ display: 'flex', gap: 1, mb: 2 }}>
+          <TextField
+            label="Key"
+            value={key}
+            onChange={(e) => updateAdditionalMetric(key, e.target.value, value)}
+            sx={{ flex: 1 }}
+          />
+          <TextField
+            label="Value"
+            value={value}
+            onChange={(e) => updateAdditionalMetric(key, key, e.target.value)}
+            sx={{ flex: 2 }}
+          />
+          <Button
+            color="error"
+            onClick={() => removeAdditionalMetric(key)}
+            sx={{ flexShrink: 0 }}
+          >
+            Remove
+          </Button>
+        </Box>
+      ))}
+
+      <Button
+        type="button"
+        color='success'
+        variant='contained'
+        onClick={addAdditionalMetric}
+        sx={{ mb: 2 }}
+      >
+        Add Additional Detail
+      </Button>
+
+      <Container sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button type='submit' variant='contained'>Add Activity</Button>
+      </Container>
+    </Box>
+  );
+};
+
+export default ActivityForm;

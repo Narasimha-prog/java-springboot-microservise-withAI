@@ -18,11 +18,11 @@ public class  ActivityController {
 final private IActivityService activityService;
 
     @PostMapping
-    public ResponseEntity<ActivityResponse> tractActivity(@RequestBody ActivityRequest request,@RequestHeader("X-User-ID") String userId){
+    public ResponseEntity<ActivityResponse> saveActivity(@RequestBody ActivityRequest request,@RequestHeader("X-User-ID") String userId){
         if(userId != null){
             request.setUserId(userId);
         }
-  return  ResponseEntity.ok(activityService.trackActivity(request));
+  return  ResponseEntity.ok(activityService.saveActivity(request));
     }
     @GetMapping
     public ResponseEntity<List<ActivityResponse>> getUserActivity(@RequestHeader("X-User-ID") String userId){
@@ -32,6 +32,12 @@ final private IActivityService activityService;
     @GetMapping("/{activityId}")
     public ResponseEntity<ActivityResponse> getActivity(@PathVariable String activityId){
         return  ResponseEntity.ok(activityService.getActivity(activityId));
+    }
+
+    @DeleteMapping("/{activityId}")
+    public ResponseEntity<Void> deleteActivity(@PathVariable String activityId){
+        activityService.deleteActivity(activityId);
+        return ResponseEntity.noContent().build();
     }
 
 
