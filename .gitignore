@@ -1,3 +1,4 @@
 .env
 data/postgres/
 
+mongodb-compass_*.deb
