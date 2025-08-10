@@ -1,77 +1,102 @@
-
-import { Box, Button, Typography } from "@mui/material"
-import { useContext, useEffect} from "react"
-import { AuthContext } from "react-oauth2-code-pkce"
-import { useDispatch } from "react-redux";
-import { BrowserRouter as Router,Navigate,Route,Routes } from "react-router"
-import { setCredentials } from "./store/authSlice";
+import { Box } from "@mui/material";
+import { useContext, useEffect, useState } from "react";
+// ✅ Correct import path for react-router-dom
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { AuthContext } from "react-oauth2-code-pkce";
+import { setCredentials, logout } from "./store/authSlice";
 import ActivityForm from "./components/ActivityForm";
 import ActivityList from "./components/ActivityList";
 import ActivityDetails from "./components/ActivityDetails";
 import Navbar from "./components/NavBar";
-function App() {
+import Footer from "./components/Footer";
+import { HomePage } from "./components/Home";
 
-  const ActivitiesPage=()=>{
-    return(
-     <Box component="section" sx={{ p: 2, border: '1px dashed grey' }}>
-     <ActivityForm onActivityAdded={()=>window.location.reload()}/>
-      <ActivityList/>
-    </Box>)
-  }
-
-  const{token,tokenData,logIn,logOut}=useContext(AuthContext);
-  const dispatch=useDispatch();
-  //  const[authReady,setAuthReady]=useState(false);
-
-  useEffect(()=>{
-    if (token) {
-      dispatch(setCredentials({token,user: tokenData}));
-      // setAuthReady(true);
-    }
-  },[token,tokenData,dispatch])
-  
+// (Your existing components)
+function ActivitiesPage() {
   return (
-   <Router>
-     <Navbar isAuthenticated={token} onLogout={logOut}  />
-      {!token ? (
-      <Box
-      sx={{
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
-      }}
-    >
-      <Typography variant="h4" gutterBottom>
-        Welcome to the Fitness Tracker App
-      </Typography>
-      <Typography variant="subtitle1" sx={{ mb: 3 }}>
-        Please login to access your activities
-      </Typography>
-      <Button variant="contained" color="primary" size="large" onClick={() => {
-                logIn();
-              }}>
-        LOGIN
-      </Button>
+    <Box component="section" sx={{ p: 2, border: "1px dashed grey" }}>
+      <ActivityForm onActivityAdded={() => window.location.reload()} />
+      <ActivityList />
     </Box>
-            ) : (
-              
-
-              <Box sx={{ p: 2, border: '1px dashed grey' }}>
-                 {/* <Button variant="contained" color="secondary" onClick={() => logOut()}>
-                  Logout
-                </Button> */}
-              <Routes>
-                <Route path="/activities" element={<ActivitiesPage />}/>
-                <Route path="/activities/:id" element={<ActivityDetails />}/>
-                <Route path="/" element={token ? <Navigate to="/activities" replace/> : <div>Welcome! Please Login.</div>} />
-              </Routes>
-            </Box>
-            )}
-    </Router>
-  )
+  );
 }
 
-export default App
+function App() {
+  const { token: contextToken, tokenData, logIn, logOut } = useContext(AuthContext);
+  const dispatch = useDispatch();
+  // ✅ Get both the token and user from Redux
+  const token = useSelector((state) => state.auth.token);
+  const user = useSelector((state) => state.auth.user);
+  
+  const [authChecked, setAuthChecked] = useState(false);
+
+  // ✅ 1. This useEffect now correctly saves token and user to localStorage
+  useEffect(() => {
+    if (contextToken) {
+      dispatch(setCredentials({ token: contextToken, user: tokenData }));
+      localStorage.setItem("token", contextToken);
+      localStorage.setItem("user", JSON.stringify(tokenData));
+    }
+  }, [contextToken, tokenData, dispatch]);
+
+  // ✅ 2. This useEffect now correctly restores Redux state from localStorage
+  useEffect(() => {
+    const savedToken = localStorage.getItem("token");
+    const savedUser = localStorage.getItem("user");
+    if (savedToken && savedUser) {
+      dispatch(
+        setCredentials({
+          token: savedToken,
+          user: JSON.parse(savedUser),
+        })
+      );
+    }
+    setAuthChecked(true);
+  }, [dispatch]);
+
+  if (!authChecked) {
+    return <div>Loading...</div>;
+  }
+
+  const handleLogout = () => {
+    dispatch(logout());
+    logOut();
+    // ✅ 3. Clear localStorage on logout
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  };
+
+  return (
+    <Router>
+      <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        <Navbar
+          isAuthenticated={!!token}
+          onLogout={handleLogout}
+          onLogin={logIn}
+        />
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Routes>
+          
+          <Route 
+            path="/" 
+            // ✅ 4. Pass correct boolean and user object from Redux to HomePage
+            element={<HomePage onLogin={logIn} isAuthenticated={!!token} user={user} />} 
+          />
+          <Route
+            path="/activities"
+            element={token ? <ActivitiesPage /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="/activities/:id"
+            element={token ? <ActivityDetails /> : <Navigate to="/" replace />}
+          />
+        </Routes>
+        </Box>
+        <Footer />
+      </Box>
+    </Router>
+  );
+}
+
+export default App;

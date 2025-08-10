@@ -1,16 +1,14 @@
-
 import { AppBar, Toolbar, Typography, Button, Box, IconButton } from '@mui/material';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom'; // Changed to 'react-router-dom' for useNavigate
 import { User } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { AuthContext } from 'react-oauth2-code-pkce';
 
-const Navbar = ({ onLogout }) => {
+const Navbar = ({ onLogout, onLogin }) => {
   const KEYCLOAK_PROFILE_URL = "http://localhost:8180/realms/fitness/account/";
   const navigate = useNavigate();
 
   const user = useSelector(state => state.auth.user);
-
 
   return (
     <AppBar position="static">
@@ -20,11 +18,15 @@ const Navbar = ({ onLogout }) => {
         </Typography>
 
         {!user ? (
-          <Button color="inherit" >
+          <Button color="inherit" onClick={() => onLogin()}>
             Log In
           </Button>
         ) : (
           <Box>
+            {/* Added this button for logged-in users to navigate */}
+            <Button color="inherit" onClick={() => navigate('/activities')}>
+              My Activities
+            </Button>
             <IconButton
               color="inherit"
               onClick={() => window.open(KEYCLOAK_PROFILE_URL, "_blank")}
@@ -36,7 +38,7 @@ const Navbar = ({ onLogout }) => {
               <User />
             </IconButton>
 
-            <Button color="inherit" onClick={onLogout}>
+            <Button color="inherit" onClick={() => onLogout()}>
               Logout
             </Button>
           </Box>
