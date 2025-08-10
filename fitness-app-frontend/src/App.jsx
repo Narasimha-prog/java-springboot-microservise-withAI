@@ -11,6 +11,7 @@ import ActivityDetails from "./components/ActivityDetails";
 import Navbar from "./components/NavBar";
 import Footer from "./components/Footer";
 import { HomePage } from "./components/Home";
+import { ScrollToTop } from "./components/ScrollToTop";
 
 // (Your existing components)
 function ActivitiesPage() {
@@ -94,6 +95,7 @@ function App() {
         </Routes>
         </Box>
         <Footer />
+        <ScrollToTop/>
       </Box>
     </Router>
   );

@@ -1,37 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router'; // Import useNavigate
+import { useParams, useNavigate } from 'react-router-dom';
 import { getActivityDetails, getActivityDetail, deleteActivity } from '../servises/api';
-import { Box, Button, Card, CardContent, Divider, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material'; // Import Dialog components
+import { Box, Button, Card, CardContent, Divider, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 
 const ActivityDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // Initialize useNavigate hook
+  const navigate = useNavigate();
   const [activity, setActivity] = useState(null);
-  const[recommendation, setRecommendation] = useState({}); // Initialize recommendation state
-  // recommendation is part of activity object, no need for separate state
-  const [openConfirm, setOpenConfirm] = useState(false); // State for confirmation dialog
-
+  const [recommendation, setRecommendation] = useState({});
+  const [openConfirm, setOpenConfirm] = useState(false);
 
   useEffect(() => {
-    const fetchActivityData = async () => { 
+    const fetchActivityData = async () => {
       try {
-        // Assuming getActivityDetail provides the main activity data (duration, calories)
-        // and getActivityDetails provides the recommendation part.
-        // It's usually better to have one endpoint return all details if possible.
         const response1 = await getActivityDetail(id);
-         setActivity(response1.data);
+        setActivity(response1.data);
         console.log("Activity Data:", response1.data);
 
-        // Fetch recommendation separately if not part of activityData initially
-        // Otherwise, if response1.data already contains recommendation, this call might be redundant
         const responseDetails = await getActivityDetails(id);
         console.log("Recommendation Data:", responseDetails.data);
         if (responseDetails.data && responseDetails.data.recommendation) {
-           setRecommendation(responseDetails.data)
+          setRecommendation(responseDetails.data);
         }
-
-        
-
       } catch (error) {
         console.error("Error fetching activity details:", error);
       }
@@ -40,7 +30,6 @@ const ActivityDetails = () => {
     fetchActivityData();
   }, [id]);
 
-  // Handle confirmation dialog
   const handleClickOpen = () => {
     setOpenConfirm(true);
   };
@@ -49,61 +38,99 @@ const ActivityDetails = () => {
     setOpenConfirm(false);
   };
 
-  // Handle actual deletion
   const handleDelete = async () => {
-    handleClose(); // Close the dialog
+    handleClose();
     try {
-      await deleteActivity(id); // Pass the id to the deleteActivity function
-      navigate('/activities'); // Redirect to the activities list after deletion
+      await deleteActivity(id);
+      navigate('/activities');
     } catch (error) {
       console.error("Error deleting activity:", error);
-      // Optionally, show an error message to the user
     }
   };
-
 
   if (!activity) {
     return <Typography>Loading....</Typography>;
   }
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', p: 2 }}>
-      <Card sx={{ mb: 2 }}>
-        <CardContent>
-          <Typography variant="h5" gutterBottom>Activity Details</Typography>
+    <Box 
+      sx={{ 
+        // Sets responsive maxWidth for the container
+        maxWidth: { xs: '100%', sm: 600, md: 800 },
+        // Adjusts horizontal margin to remove extra space on mobile
+        mx: { xs: 0, sm: 'auto' },
+        // Reduced padding for a tighter layout
+        p: { xs: 1, sm: 2 },
+      }}
+    >
+      <Card sx={{ mb: { xs: 1, sm: 2 } }}>
+        <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+          <Typography 
+            variant="h5" 
+            gutterBottom 
+            sx={{ fontSize: { xs: '1.5rem', sm: '1.75rem' } }}
+          >
+            Activity Details
+          </Typography>
           <Typography>Type: {activity.type}</Typography>
           <Typography>Duration: {activity.duration} minutes</Typography>
           <Typography>Calories Burned: {activity.caloriesBurned}</Typography>
-          {activity.createdAt && ( // Check if createdAt exists before using
-              <Typography>Date: {new Date(activity.createdAt).toLocaleString()}</Typography>
+          {activity.createdAt && (
+            <Typography>Date: {new Date(activity.createdAt).toLocaleString()}</Typography>
           )}
         </CardContent>
       </Card>
 
-      {recommendation && Object.keys(recommendation).length > 0 && ( // Check if recommendation exists and is not empty
+      {recommendation && Object.keys(recommendation).length > 0 && (
         <Card>
-          <CardContent>
-            <Typography variant="h5" gutterBottom>AI Recommendation</Typography>
-            <Typography variant="h6">Analysis</Typography>
+          <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+            <Typography 
+              variant="h5" 
+              gutterBottom
+              sx={{ fontSize: { xs: '1.5rem', sm: '1.75rem' } }}
+            >
+              AI Recommendation
+            </Typography>
+            <Typography 
+              variant="h6"
+              sx={{ fontSize: { xs: '1.2rem', sm: '1.4rem' } }}
+            >
+              Analysis
+            </Typography>
             <Typography paragraph>{recommendation.analysis}</Typography>
             
             <Divider sx={{ my: 2 }} />
             
-            <Typography variant="h6">Improvements</Typography>
+            <Typography 
+              variant="h6"
+              sx={{ fontSize: { xs: '1.2rem', sm: '1.4rem' } }}
+            >
+              Improvements
+            </Typography>
             {recommendation.improvements && recommendation.improvements.map((improvement, index) => (
               <Typography key={index} paragraph>• {improvement}</Typography>
             ))}
             
             <Divider sx={{ my: 2 }} />
             
-            <Typography variant="h6">Suggestions</Typography>
+            <Typography 
+              variant="h6"
+              sx={{ fontSize: { xs: '1.2rem', sm: '1.4rem' } }}
+            >
+              Suggestions
+            </Typography>
             {recommendation.suggestions && recommendation.suggestions.map((suggestion, index) => (
               <Typography key={index} paragraph>• {suggestion}</Typography>
             ))}
             
             <Divider sx={{ my: 2 }} />
             
-            <Typography variant="h6">Safety Guidelines</Typography>
+            <Typography 
+              variant="h6"
+              sx={{ fontSize: { xs: '1.2rem', sm: '1.4rem' } }}
+            >
+              Safety Guidelines
+            </Typography>
             {recommendation.safety && recommendation.safety.map((safety, index) => (
               <Typography key={index} paragraph>• {safety}</Typography>
             ))}
@@ -111,12 +138,10 @@ const ActivityDetails = () => {
         </Card>
       )}
 
-      {/* Delete Button */}
-      <Button variant="contained" color="error" onClick={handleClickOpen} sx={{ mt: 2 }}>
+      <Button variant="contained" color="error" onClick={handleClickOpen} sx={{ mt: { xs: 1, sm: 2 } }}>
         Delete Activity
       </Button>
 
-      {/* Confirmation Dialog */}
       <Dialog
         open={openConfirm}
         onClose={handleClose}
