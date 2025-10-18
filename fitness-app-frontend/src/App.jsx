@@ -70,7 +70,7 @@ function App() {
 
   return (
     <Router>
-      <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh",      background: 'linear-gradient(to bottom, #d3d3d3, #808080)', color: 'white' }}>
         <Navbar
           isAuthenticated={!!token}
           onLogout={handleLogout}

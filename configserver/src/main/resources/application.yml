@@ -4,14 +4,19 @@ spring:
 
 
   profiles:
-    active: native
+    active: git
 
   cloud:
     config:
       server:
-        native:
-          search-locations: classpath:/config
-        watch:
-          enabled: true
+        git:
+          uri: https://github.com/Narasimha-prog/config_server_properties.git
 server:
   port: 4003
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, env, configprops, refresh

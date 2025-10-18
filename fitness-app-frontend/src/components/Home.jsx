@@ -27,9 +27,9 @@ export function HomePage({ onLogin, isAuthenticated, user }) {
           </Typography>
           <Typography 
             variant="subtitle1"
-            sx={{ fontSize: { xs: '1rem', sm: '1.2rem', md: '1.5rem' } }}
+            sx={{ fontSize: { xs: '1rem', sm: '1.2rem', md: '1.5rem' },color: 'text.secondary' }}
           >
-            You are logged in Click <Button color="info" onClick={() => navigate('/activities')}>
+            You are logged in Click <Button   sx={{ textTransform: 'none',color:"black" ,fontSize:"1.25rem" }} onClick={() => navigate('/activities')}>
               My Activities
             </Button> to see your activities.
           </Typography>
